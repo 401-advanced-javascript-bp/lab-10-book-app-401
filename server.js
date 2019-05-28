@@ -8,8 +8,8 @@ const PORT = process.env.PORT || 3000;
 // Application Dependencies
 const express = require('express');
 
-//or router.js?
-const router = require('./src/routes.js');
+//routes is the object that represents this file
+const routes = require('./src/routes.js');
 
 const pg = require('pg');
 const superagent = require('superagent');
@@ -37,7 +37,7 @@ app.set('view engine', 'ejs');
 
 // API Routes
 // app.get('/', getBooks);
-app.get('/', router.getBooks);
+app.get('/', routes.getBooks); //seems to be breaking
 app.post('/searches', createSearch);
 app.get('/searches/new', newSearch);
 app.get('/books/:id', getBook);

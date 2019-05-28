@@ -1,10 +1,11 @@
 'use strict';
 //requires the express dependency
 const express = require('express');
-const router = express.Router();
+// const app = express();
+const routes = express.Router();
 
 //keep getting an error saying that getBooks is undefined
-router.get('/', getBooks);
+// router.get('/', getBooks);
 
 module.exports = {
   getBooks: (request, response, next) => {
@@ -24,10 +25,5 @@ module.exports = {
   }
 },
 
-
-
-
-
-
-module.exports = router;
+module.exports = routes;
 
