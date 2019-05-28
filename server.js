@@ -173,6 +173,7 @@ function handleError(error, response) {
 
 const start = () => app.listen(PORT, () => { console.log(`Listening on port: ${PORT}`) });
 
+//exports these definitions back to the file that called this file, index.js
 module.exports = {
   start, app
 };
