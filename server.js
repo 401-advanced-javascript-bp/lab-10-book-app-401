@@ -1,16 +1,22 @@
 'use strict';
 
 require('dotenv').config();
+console.log('PROCESS VARS: ', process.env);
 
 // Application Dependencies
 const express = require('express');
+
+//or router?
+const router = require('/src/routes');
+
 const pg = require('pg');
 const superagent = require('superagent');
-const methodOverride = require('method-override');
+const mw = require('./middleware/middleware.js');
+// const methodOverride = require('method-override');
 
 // Application Setup
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 // Database Setup
 const client = new pg.Client(process.env.DATABASE_URL);
@@ -21,14 +27,8 @@ client.on('error', err => console.error(err));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-app.use(methodOverride((request, response) => {
-  if (request.body && typeof request.body === 'object' && '_method' in request.body) {
-    // look in urlencoded POST bodies and delete it
-    let method = request.body._method;
-    delete request.body._method;
-    return method;
-  }
-}))
+//middleware for method override
+app.use(mw.override);
 
 // Set the view engine for server-side templating
 app.set('view engine', 'ejs');
@@ -44,8 +44,6 @@ app.delete('/books/:id', deleteBook);
 
 app.get('*', (request, response) => response.status(404).send('This route does not exist'));
 
-app.listen(PORT, () => console.log(`Listening on port: ${PORT}`));
-
 // HELPER FUNCTIONS
 function Book(info) {
   const placeholderImage = 'https://i.imgur.com/J5LVHEL.jpg';
@@ -58,19 +56,19 @@ function Book(info) {
   this.id = info.industryIdentifiers ? `${info.industryIdentifiers[0].identifier}` : '';
 }
 
-function getBooks(request, response) {
-  let SQL = 'SELECT * FROM books;';
+// function getBooks(request, response) {
+//   let SQL = 'SELECT * FROM books;';
 
-  return client.query(SQL)
-    .then(results => {
-      if (results.rows.rowCount === 0) {
-        response.render('pages/searches/new');
-      } else {
-        response.render('pages/index', { books: results.rows })
-      }
-    })
-    .catch(err => handleError(err, response));
-}
+//   return client.query(SQL)
+//     .then(results => {
+//       if (results.rows.rowCount === 0) {
+//         response.render('pages/searches/new');
+//       } else {
+//         response.render('pages/index', { books: results.rows })
+//       }
+//     })
+//     .catch(err => handleError(err, response));
+// }
 
 function createSearch(request, response) {
   let url = 'https://www.googleapis.com/books/v1/volumes?q=';
@@ -169,3 +167,9 @@ function deleteBook(request, response) {
 function handleError(error, response) {
   response.render('pages/error', { error: error });
 }
+
+const start = () => app.listen(PORT, () => { console.log(`Listening on port: ${PORT}`) });
+
+module.exports = {
+  start, app
+};
