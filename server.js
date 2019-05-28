@@ -3,11 +3,13 @@
 require('dotenv').config();
 console.log('PROCESS VARS: ', process.env);
 
+const PORT = process.env.PORT || 3000;
+
 // Application Dependencies
 const express = require('express');
 
-//or router?
-const router = require('/src/routes');
+//or router.js?
+const router = require('./src/routes.js');
 
 const pg = require('pg');
 const superagent = require('superagent');
@@ -16,12 +18,12 @@ const mw = require('./middleware/middleware.js');
 
 // Application Setup
 const app = express();
-const PORT = process.env.PORT || 3000;
+// const PORT = process.env.PORT || 3000;
 
 // Database Setup
 const client = new pg.Client(process.env.DATABASE_URL);
-client.connect();
 client.on('error', err => console.error(err));
+client.connect();
 
 // Application Middleware
 app.use(express.urlencoded({ extended: true }));
@@ -34,7 +36,8 @@ app.use(mw.override);
 app.set('view engine', 'ejs');
 
 // API Routes
-app.get('/', getBooks);
+// app.get('/', getBooks);
+app.get('/', router.getBooks);
 app.post('/searches', createSearch);
 app.get('/searches/new', newSearch);
 app.get('/books/:id', getBook);
